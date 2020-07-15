@@ -3,20 +3,19 @@
 namespace VigilantForm\MagentoKit\Observer;
 
 use Magento\Framework\Event\{Observer, ObserverInterface};
-use VigilantForm\Kit\VigilantFormKit;
-use VigilantForm\MagentoKit\Bootstrap;
+use VigilantForm\MagentoKit\VigilantFormMagentoKit;
 
 class PageTracking implements ObserverInterface
 {
-    /** @var Bootstrap */
-    protected $bootstrap;
+    /** @var VigilantFormMagentoKit */
+    protected $vfmk;
 
     /**
-     * @param Bootstrap $bootstrap
+     * @param VigilantFormMagentoKit $vfmk
      */
-    public function __construct(Bootstrap $bootstrap)
+    public function __construct(VigilantFormMagentoKit $vfmk)
     {
-        $this->bootstrap = $bootstrap;
+        $this->vfmk = $vfmk;
     }
 
     /**
@@ -29,9 +28,7 @@ class PageTracking implements ObserverInterface
 
         /* if extension contains "htm" or blank string (directory) */
         if (stripos($extension, 'htm') !== false || $extension === '') {
-            $vfk = $this->bootstrap->create();
-            $vfk->trackSource();
-            $vfk->generateHoneypot();
+            $this->vfmk->trackSource();
         }
     }
 }

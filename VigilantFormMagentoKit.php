@@ -6,9 +6,10 @@ use Magento\Customer\Model\Session;
 use Magento\Framework\Filesystem\DirectoryList;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use UnexpectedValueException;
 use VigilantForm\Kit\VigilantFormKit;
 
-class Bootstrap
+class VigilantFormMagentoKit
 {
     /** @var VigilantFormKit */
     protected static $kit = null;
@@ -44,9 +45,45 @@ class Bootstrap
     }
 
     /**
+     * Sets various meta data, based on $_SERVER, so we have it when the form is submitted.
+     * @see VigilantFormKit::trackSource()
+     */
+    public function trackSource(): void
+    {
+        $this->getInstance()->trackSource();
+    }
+
+    /**
+     * Call once per html form, reusing the html multiple times will cause problems.
+     * If user has javascript disabled, to pass the honeypot, they'll be asked
+     * a simple math problem. If they have javascript, they will see nothing.
+     * @see VigilantFormKit::generateHoneypot()
+     * @return string Returns chunk of html to insert into a form.
+     */
+    public function generateHoneypot(): string
+    {
+        return $this->getInstance()->generateHoneypot();
+    }
+
+    /**
+     * @see VigilantFormKit::submitForm()
+     * @param array $fields The user submission, such as $_POST.
+     * @param string $website Optional, name of the website that the form exists on.
+     * @param string $form_title Optional, name of the form was submitted.
+     * @return bool Returns true on success, will throw an exception otherwise.
+     * @throws UnexpectedValueException when attempt to store form is unsuccessful.
+     */
+    public function submitForm(array $fields, string $website = null, string $form_title = null): bool
+    {
+        $website = $website ?? $this->getWebsite();
+        $form_title = $form_title ?? $this->getFormTitle();
+        return $this->getInstance()->submitForm($website, $form_title, $fields);
+    }
+
+    /**
      * @return VigilantFormKit
      */
-    public function create(): VigilantFormKit
+    public function getInstance(): VigilantFormKit
     {
         if (!static::$kit) {
             $settings = $this->loadSettings();
