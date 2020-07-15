@@ -12,7 +12,9 @@
         }
     ],
     "require": {
-        "digitaladapt/vigilant-form-kit": "^1.2"
+        "php": ">=7.1.0",
+        "digitaladapt/vigilant-form-kit": "^1.2.5-beta",
+        "ext-json": "*"
     },
     "autoload": {
         "psr-4": {

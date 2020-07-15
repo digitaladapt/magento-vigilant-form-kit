@@ -1,6 +1,6 @@
 <?php
 
-namespace \VigilantForm\MagentoKit;
+namespace VigilantForm\MagentoKit;
 
 use Magento\Framework\Session\SessionManagerInterface;
 

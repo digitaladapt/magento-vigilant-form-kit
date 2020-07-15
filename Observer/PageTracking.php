@@ -29,7 +29,6 @@ class PageTracking implements ObserverInterface
 
         /* if extension contains "htm" or blank string (directory) */
         if (stripos($extension, 'htm') !== false || $extension === '') {
-            /** @var VigilantFormKit $vfk */
             $vfk = $this->bootstrap->create();
             $vfk->trackSource();
             $vfk->generateHoneypot();
