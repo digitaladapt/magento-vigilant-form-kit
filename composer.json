@@ -1,0 +1,22 @@
+{
+    "name": "digitaladapt/magento-vigilant-form-kit",
+    "description": "Magento Module for VigilantForm.",
+    "homepage": "https://github.com/digitaladapt/magento-vigilant-form-kit",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Andrew Stowell",
+            "email": "andrew@digitaladapt.com",
+            "homepage": "https://www.digitaladapt.com"
+        }
+    ],
+    "require": {
+        "digitaladapt/vigilant-form-kit": "^1.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "VigilantForm\\MagentoKit\\": "VigilantForm/MagentoKit/"
+        }
+    }
+}
