@@ -14,6 +14,9 @@ class VigilantFormMagentoKit
     /** @var VigilantFormKit */
     protected static $kit = null;
 
+    /** @var bool */
+    protected static $tracked = false;
+
     /** @var string|null */
     protected static $website = null;
 
@@ -50,7 +53,10 @@ class VigilantFormMagentoKit
      */
     public function trackSource(): void
     {
-        $this->getInstance()->trackSource();
+        if (!static::$tracked) {
+            $this->getInstance()->trackSource();
+            static::$tracked = true;
+        }
     }
 
     /**
@@ -62,6 +68,7 @@ class VigilantFormMagentoKit
      */
     public function generateHoneypot(): string
     {
+        $this->trackSource();
         return $this->getInstance()->generateHoneypot();
     }
 
@@ -75,6 +82,7 @@ class VigilantFormMagentoKit
      */
     public function submitForm(array $fields, string $website = null, string $form_title = null): bool
     {
+        $this->trackSource();
         $website = $website ?? $this->getWebsite();
         $form_title = $form_title ?? $this->getFormTitle();
         return $this->getInstance()->submitForm($website, $form_title, $fields);
