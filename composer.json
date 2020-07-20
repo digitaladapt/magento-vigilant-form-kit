@@ -17,6 +17,7 @@
         "ext-json": "*"
     },
     "autoload": {
+        "files": ["registration.php"],
         "psr-4": {
             "VigilantForm\\MagentoKit\\": ""
         }
