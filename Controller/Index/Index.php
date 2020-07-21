@@ -27,12 +27,28 @@ class Index extends Action
         $this->vfmk = $vfmk;
     }
 
+    /**
+     * @return ResultInterface
+     */
     public function execute(): ResultInterface
     {
+        $this->vfmk->trackSource();
+        $data = (object)$this->vfmk->getInstance()->getStatus();
+        $answer = array_sum($data->math);
+
         return $this->rawFactory->create()
             ->setHttpResponseCode(200)
             ->setHeader('Content-Type', 'application/javascript')
-            ->setStatusHeader('') // ->setStatusHeader(statusHeaderCode, [statusHeaderVersion, [statusHeaderPhrase]])
-            ->setContents('Hello World');
+            ->setContents(<<<JS
+(function () {
+    var foo = document.getElementsByClassName("{$data->script_class}")[0];
+    if (foo) {
+        foo.className = "";
+        foo.innerHTML = '<input type="hidden" name="{$data->sequence}" value="{$data->seq_id}">'
+                      + '<input type="hidden" name="{$data->honeypot}" value="{$answer}">';
+    }
+})();
+JS
+            );
     }
 }

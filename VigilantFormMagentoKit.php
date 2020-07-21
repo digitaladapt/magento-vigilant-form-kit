@@ -69,7 +69,11 @@ class VigilantFormMagentoKit
     public function generateHoneypot(): string
     {
         $this->trackSource();
-        return $this->getInstance()->generateHoneypot();
+        $data = (object)$this->getInstance()->getStatus(false);
+        return <<<HTML
+<div class="{$data->script_class}"></div>
+<script src="{$data->script_src}"></script>
+HTML;
     }
 
     /**
@@ -97,11 +101,11 @@ class VigilantFormMagentoKit
             $settings = $this->loadSettings();
             static::$kit = new VigilantFormKit(
                 $settings->url,
-                $settings->clientId,
+                $settings->client_id,
                 $settings->secret
             );
             static::$kit->setSession($settings->session, $settings->prefix);
-            static::$kit->setHoneypot($settings->honeypot, $settings->sequence, $settings->script_src, $settings->script_class, $settings->require_js);
+            static::$kit->setHoneypot($settings->honeypot, $settings->sequence, $settings->script_src, $settings->script_class);
             static::$kit->setLogger($this->logger);
 
             static::$website = $settings->website;
@@ -142,20 +146,19 @@ class VigilantFormMagentoKit
         /* ensure the settings object is valid */
         $fields = [
             'url'          => ['required' => true,  'default' => null],
-            'clientId'     => ['required' => true,  'default' => null],
+            'client_id'    => ['required' => true,  'default' => null],
             'secret'       => ['required' => true,  'default' => null],
             'prefix'       => ['required' => false, 'default' => null],
             'honeypot'     => ['required' => false, 'default' => null],
             'sequence'     => ['required' => false, 'default' => null],
-            'script_src'   => ['required' => false, 'default' => 'vf-mk'],
-            'script_class' => ['required' => false, 'default' => null],
-            'require_js'   => ['required' => false, 'default' => true],
+            'script_src'   => ['required' => false, 'default' => '/vigilant_form/index/index'],
+            'script_class' => ['required' => false, 'default' => 'vf-mk'],
             'website'      => ['required' => false, 'default' => $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? 'localhost'],
             'form_title'   => ['required' => false, 'default' => 'submit'],
         ];
 
         foreach ($fields as $key => ['required' => $required, 'default' => $default]) {
-            if (!property_exists($settings, $key)) {
+            if (!isset($settings->$key)) {
                 if ($required) {
                     throw new RuntimeException("VigilantForm Settings File is missing required key: '{$key}'");
                 } else {
