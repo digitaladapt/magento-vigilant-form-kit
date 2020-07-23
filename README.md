@@ -1,10 +1,8 @@
 # magento-vigilant-form-kit
 Magento Module for VigilantForm.
 
-**Warning: Alpha release, still working out all the details.**
-
 ## So what is this?
-I'm working on a Magento Module to make it easy to push form submissions into an instance of VigilantForm.
+A Magento Module to make it easy to push form submissions into an instance of VigilantForm.
 
 ## So how is it used?
 First you add the library:
@@ -29,14 +27,49 @@ website and form_title will default to hostname and "submit" respectively.
 }
 ```
 
-**TODO: Once I have finished implementing everything, I need to revisit documentation to ensure it is complete and accurate.**
+Then use dependency injection to get the `\VigilantForm\MagentoKit\VigilantFormMagentoKit` class into whatever block or controller which has the form you want to validate.
+```php
+// SomeBlock.php
+<?php
+
+namespace SomeVendor\SomeModule\Block;
+
+class SomeBlock extends \Magento\Framework\View\Element\Template
+{
+    protected $vfmk;
+
+    public function __construct(\VigilantForm\MagentoKit\VigilantFormMagentoKit $vfmk)
+    {
+        $this->vfmk = $vfmk;
+    }
+
+    public function getVFMK()
+    {
+        return $this->vfmk;
+    }
+}
+```
+
+Within the form template you call generateHoneypot() within the html form:
+```php
+// some_block.phtml
+<?php /** @var \SomeVendor\SomeModule\Block\SomeBlock $block */ ?>
+<form>
+<?php echo $block->getVFMK()->generateHoneypot(); ?>
+</form>
+```
+
+When handling form submissions, you also dependency inject the VigilantFormMagentoKit 
+class, which has the `submitForm()` function. If the submission fails to be stored,
+it will throw an UnexpectedValueException.
+```php
+    $params = $this->getRequest()->getPost();
+    try {
+        $this->vfmk->submitForm($params);
+    } catch (\UnexpectedValueException $exception) {
+        /* do something, in the event failed to store form submission */
+    }
+
+```
 
 Finally, redeploy your Magento website to detect the new module and recompile the dependency injection.
-
-I will probably refactor the Bootstrap class to simplify the process of generating the honeypot and submitting the form, but for now:
-
-Now you can add the honeypot field into any forms you want to validate.
-Where you echo the `generateHoneypot()` from the VigilantFormKit into your form template.
-
-When handling form submissions, you can dependency inject the Bootstrap 
-class, which has a `create()` function, to tap into, so you can get the VigilantFormKit and call `submitForm()`.
