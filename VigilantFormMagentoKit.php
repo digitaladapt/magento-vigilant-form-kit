@@ -50,11 +50,12 @@ class VigilantFormMagentoKit
     /**
      * Sets various meta data, based on $_SERVER, so we have it when the form is submitted.
      * @see VigilantFormKit::trackSource()
+     * @param bool $useReferral Optional, defaults to false, set to true if within non-page (script or image) file.
      */
-    public function trackSource(): void
+    public function trackSource(bool $useReferral = false): void
     {
         if (!static::$tracked) {
-            $this->getInstance()->trackSource();
+            $this->getInstance()->trackSource($useReferral);
             static::$tracked = true;
         }
     }

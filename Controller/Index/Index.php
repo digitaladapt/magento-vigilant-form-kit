@@ -32,7 +32,7 @@ class Index extends Action
      */
     public function execute(): ResultInterface
     {
-        $this->vfmk->trackSource();
+        $this->vfmk->trackSource(true);
         $data = (object)$this->vfmk->getInstance()->getStatus();
         $answer = array_sum($data->math);
 
