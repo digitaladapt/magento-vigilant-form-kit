@@ -2,6 +2,7 @@
 
 namespace VigilantForm\MagentoKit\Controller\Index;
 
+use DateTimeImmutable;
 use Magento\Framework\App\Action\{Action, Context};
 use Magento\Framework\Controller\Result\RawFactory;
 use Magento\Framework\Controller\ResultInterface;
@@ -35,10 +36,15 @@ class Index extends Action
         $this->vfmk->trackSource(true);
         $data = (object)$this->vfmk->getInstance()->getStatus();
         $answer = array_sum($data->math);
+        $now = new DateTimeImmutable();
+        $expires = $now->modify('+15 seconds');
 
         return $this->rawFactory->create()
             ->setHttpResponseCode(200)
-            ->setHeader('Cache-Control', 'private, max-age=15') /* browser may cache for 15 seconds */
+            ->setHeader('Cache-Control', 'max-age=15, must-revalidate, private') /* browser may cache for 15 seconds */
+            ->setHeader('Pragma', null) /* must set, or will default to blocking caching */
+            ->setHeader('Date', $now->format(DATE_RFC7231))
+            ->setHeader('Expires', $expires->format(DATE_RFC7231)) /* send a consistent caching policy */
             ->setHeader('Content-Type', 'application/javascript')
             ->setContents(<<<JS
 (function () {
