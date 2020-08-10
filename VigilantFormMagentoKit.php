@@ -61,35 +61,38 @@ class VigilantFormMagentoKit
     }
 
     /**
-     * Call once per html form, reusing the html multiple times will cause problems.
-     * If user has javascript disabled, to pass the honeypot, they'll be asked
-     * a simple math problem. If they have javascript, they will see nothing.
+     * Reusing the html multiple times is allowed, but only on the same page.
+     * If user has javascript disabled, they will failed the honeypot.
+     * Regardless of if they have javascript, they will see nothing.
      * @see VigilantFormKit::generateHoneypot()
      * @return string Returns chunk of html to insert into a form.
      */
     public function generateHoneypot(): string
     {
         $this->trackSource();
+        /* referral is only used to prevent over-caching */
+        $refPath = htmlentities(urlencode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)));
         $data = (object)$this->getInstance()->getStatus(false);
         return <<<HTML
 <div class="{$data->script_class}"></div>
-<script src="{$data->script_src}"></script>
+<script src="{$data->script_src}?referral={$refPath}"></script>
 HTML;
     }
 
     /**
      * @see VigilantFormKit::submitForm()
-     * @param array $fields The user submission, such as $_POST.
-     * @param string $website Optional, name of the website that the form exists on.
-     * @param string $form_title Optional, name of the form was submitted.
+     * @param array|null $fields Optional, the user submission, defaults to $_POST.
+     * @param string|null $form_title Optional, name of the form was submitted, default from config.
+     * @param string|null $website Optional, name of the website that the form exists on, default from config.
      * @return bool Returns true on success, will throw an exception otherwise.
      * @throws UnexpectedValueException when attempt to store form is unsuccessful.
      */
-    public function submitForm(array $fields, string $website = null, string $form_title = null): bool
+    public function submitForm(array $fields = null, string $form_title = null, string $website = null): bool
     {
         $this->trackSource();
-        $website = $website ?? $this->getWebsite();
+        $fields     = $fields     ?? $_POST;
         $form_title = $form_title ?? $this->getFormTitle();
+        $website    = $website    ?? $this->getWebsite();
         return $this->getInstance()->submitForm($website, $form_title, $fields);
     }
 

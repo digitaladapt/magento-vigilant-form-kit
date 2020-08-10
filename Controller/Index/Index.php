@@ -38,6 +38,7 @@ class Index extends Action
 
         return $this->rawFactory->create()
             ->setHttpResponseCode(200)
+            ->setHeader('Cache-Control', 'private, max-age=15') /* browser may cache for 15 seconds */
             ->setHeader('Content-Type', 'application/javascript')
             ->setContents(<<<JS
 (function () {

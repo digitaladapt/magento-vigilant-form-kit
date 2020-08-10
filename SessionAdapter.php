@@ -16,8 +16,8 @@ class SessionAdapter
 
     public function exists(string $key): bool
     {
-        $getKey = "get{$key}";
-        return !!$this->session->$getKey();
+        $hasKey = "has{$key}";
+        return $this->session->$hasKey();
     }
 
     public function get(string $key, $default = null)

@@ -3,10 +3,13 @@
 namespace VigilantForm\MagentoKit\Observer;
 
 use Magento\Framework\Event\{Observer, ObserverInterface};
+use VigilantForm\MagentoKit\Traits\TrackPage;
 use VigilantForm\MagentoKit\VigilantFormMagentoKit;
 
 class PageTracking implements ObserverInterface
 {
+    use TrackPage;
+
     /** @var VigilantFormMagentoKit */
     protected $vfmk;
 
@@ -23,12 +26,6 @@ class PageTracking implements ObserverInterface
      */
     public function execute(Observer $observer)
     {
-        /* get the file extension of the uri, will be blank for extensionless filenames, such as directories */
-        $extension = pathinfo(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), PATHINFO_EXTENSION);
-
-        /* if extension contains "htm" or blank string (directory) */
-        if (stripos($extension, 'htm') !== false || $extension === '') {
-            $this->vfmk->trackSource();
-        }
+        $this->trackSource();
     }
 }
