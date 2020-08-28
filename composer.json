@@ -13,7 +13,7 @@
     ],
     "require": {
         "php": ">=7.1.0",
-        "digitaladapt/vigilant-form-kit": "^1.3.2",
+        "digitaladapt/vigilant-form-kit": "^1.3.4",
         "ext-json": "*"
     },
     "autoload": {
