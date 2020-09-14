@@ -11,6 +11,9 @@ use VigilantForm\Kit\VigilantFormKit;
 
 class VigilantFormMagentoKit
 {
+    public const MULTI_FORM = 'form';
+    public const MULTI_CODE = 'code';
+
     /** @var VigilantFormKit */
     protected static $kit = null;
 
@@ -62,21 +65,36 @@ class VigilantFormMagentoKit
 
     /**
      * Reusing the html multiple times is allowed, but only on the same page.
+     * Pages with multiple forms may experience performance boost by switching
+     * * to MULTI_FORM in form and MULTI_CODE at bottom of html.
      * If user has javascript disabled, they will failed the honeypot.
      * Regardless of if they have javascript, they will see nothing.
      * @see VigilantFormKit::generateHoneypot()
+     * @param string|null mode Optional, one of static::MULTI_*.
      * @return string Returns chunk of html to insert into a form.
      */
-    public function generateHoneypot(): string
+    public function generateHoneypot(string $mode = null): string
     {
         $this->trackSource();
         /* referral is only used to prevent over-caching */
         $refPath = htmlentities(urlencode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)));
         $data = (object)$this->getInstance()->getStatus(false);
-        return <<<HTML
+
+        switch ($mode) {
+            case static::MULTI_FORM:
+                return <<<HTML
+<div class="{$data->script_class}"></div>
+HTML;
+            case static::MULTI_CODE:
+                return <<<HTML
+<script src="{$data->script_src}?multi=true&amp;referral={$refPath}"></script>
+HTML;
+            default:
+                return <<<HTML
 <div class="{$data->script_class}"></div>
 <script src="{$data->script_src}?referral={$refPath}"></script>
 HTML;
+        }
     }
 
     /**

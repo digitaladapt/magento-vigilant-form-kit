@@ -59,6 +59,23 @@ Within the form template you call generateHoneypot() within the html form:
 </form>
 ```
 
+If a page has multiple forms within a single page, you may call generateHoneypot('form') within the html form,
+so long as you also call generateHoneypot('code'), after the last form,
+(this is not required, but can provide a performance boost to page loads):
+```php
+// some_block.phtml
+<?php /** @var \SomeVendor\SomeModule\Block\SomeBlock $block */ ?>
+<form>
+<?php echo $block->getVFMK()->generateHoneypot('form'); ?>
+</form>
+
+<form>
+<?php echo $block->getVFMK()->generateHoneypot('form'); ?>
+</form>
+
+<?php echo $block->getVFMK()->generateHoneypot('code'); ?>
+```
+
 When handling form submissions, you also dependency inject the VigilantFormMagentoKit 
 class, which has the `submitForm()` function. If the submission fails to be stored,
 it will throw an UnexpectedValueException.

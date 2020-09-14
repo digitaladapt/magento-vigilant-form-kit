@@ -39,14 +39,7 @@ class Index extends Action
         $now = new DateTimeImmutable();
         $expires = $now->modify('+15 seconds');
 
-        return $this->rawFactory->create()
-            ->setHttpResponseCode(200)
-            ->setHeader('Cache-Control', 'max-age=15, must-revalidate, private') /* browser may cache for 15 seconds */
-            ->setHeader('Pragma', null) /* must set, or will default to blocking caching */
-            ->setHeader('Date', $now->format(DATE_RFC7231))
-            ->setHeader('Expires', $expires->format(DATE_RFC7231)) /* send a consistent caching policy */
-            ->setHeader('Content-Type', 'application/javascript')
-            ->setContents(<<<JS
+        $js = <<<JS
 (function () {
     var foo = document.getElementsByClassName("{$data->script_class}")[0];
     if (foo) {
@@ -55,7 +48,32 @@ class Index extends Action
                       + '<input type="hidden" name="{$data->honeypot}" value="{$answer}">';
     }
 })();
-JS
-            );
+JS;
+
+        if ($this->getRequest()->getParam('multi') === 'true') {
+            $js = <<<JS
+(function () {
+    var foo = document.getElementsByClassName("{$data->script_class}");
+    if (foo) {
+        var bar;
+        for (var i = foo.length - 1; i >= 0; --i) {
+            bar = foo[i];
+            bar.className = "";
+            bar.innerHTML = '<input type="hidden" name="{$data->sequence}" value="{$data->seq_id}">'
+                          + '<input type="hidden" name="{$data->honeypot}" value="{$answer}">';
+        }
+    }
+})();
+JS;
+        }
+
+        return $this->rawFactory->create()
+            ->setHttpResponseCode(200)
+            ->setHeader('Cache-Control', 'max-age=15, must-revalidate, private') /* browser may cache for 15 seconds */
+            ->setHeader('Pragma', null) /* must set, or will default to blocking caching */
+            ->setHeader('Date', $now->format(DATE_RFC7231))
+            ->setHeader('Expires', $expires->format(DATE_RFC7231)) /* send a consistent caching policy */
+            ->setHeader('Content-Type', 'application/javascript')
+            ->setContents($js);
     }
 }
